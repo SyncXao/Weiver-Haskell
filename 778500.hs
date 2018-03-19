@@ -1,15 +1,14 @@
 --
 -- Discrete Mathematics and Functional Programming
--- Haskell Coursework: Film Database
+-- Haskell Coursework: Film Database (Weiver - revieW)
 -- Student ID: 778500
 --
-
 
 -- // Imports :
 
 import Data.List
 import Data.Char
-
+import Text.Printf
 
 --  // Types :
 
@@ -19,12 +18,35 @@ type Year = Int
 type Fan = String
 type Fans = [Fan]
 type Film = (Title, Director, Year, Fans)
-
+type Database = [Film]
 
 --  // Functionality :
 
-getAllFilms :: [Film]
-getAllFilms = testDatabase
+-- Add a new film to the database
+addFilm :: Title -> Director -> Year -> Database -> Database
+addFilm ti dir yr db = db++[(ti, dir, yr, [])]
+
+-- Return testDatabase which includes all Films
+getAllFilms :: Database -> IO ()
+getAllFilms database = putStrLn (filmsAsString database)
+
+-- Return all films by a given Director
+getFilmsByDirector :: Database -> Director -> Database
+getFilmsByDirector database dirQ = [(ti,dir,yr,fan) | (ti,dir,yr,fan) <- database, dir == dirQ]
+
+-- Return testDatabase with films only after certain date
+
+-- // H-Functions :
+displayListAsString :: [String] -> String
+displayListAsString [] = ""
+displayListAsString (x:[]) = x ++ displayListAsString []
+displayListAsString (x:xs) = x ++ ", " ++ displayListAsString xs
+
+
+filmsAsString :: Database -> String
+filmsAsString [] = ""
+filmsAsString ((ti,dir,yr,fan):rest) = "\n Title: " ++ ti ++ "\n Director: " ++ dir ++ "\n Year: " ++ show yr ++ "\n Fans: " ++ (displayListAsString fan) ++ "\n" ++ filmsAsString rest
+
 
 -- Demo function to test basic functionality (without persistence - i.e. 
 -- testDatabase doesn't change and nothing is saved/loaded to/from file).
@@ -49,7 +71,7 @@ getAllFilms = testDatabase
 --
 
 -- Demonstration Database
-testDatabase :: [Film]
+testDatabase :: Database
 testDatabase = [("Blade Runner", "Ridley Scott", 1982, ["Zoe", "Heidi", "Jo", "Kate", "Emma", "Liz", "Dave", "Sam", "Olga", "Tim"]),
     ("The Fly", "David Cronenberg", 1986, ["Garry", "Dave", "Zoe", "Kevin", "Emma", "Heidi", "Jo", "Kate"]),
     ("Body Of Lies", "Ridley Scott", 2008, ["Garry", "Dave", "Bill", "Olga", "Tim", "Zoe", "Paula"]),
@@ -74,5 +96,4 @@ testDatabase = [("Blade Runner", "Ridley Scott", 1982, ["Zoe", "Heidi", "Jo", "K
     ("Silence", "Martin Scorsese", 2016, ["Wally", "Emma", "Tim", "Heidi", "Bill", "Jo", "Dave", "Olga"]),
     ("The Terminal", "Steven Spielberg", 2004, ["Kate", "Dave", "Jo", "Wally", "Emma", "Heidi"]),
     ("Star Wars: The Force Awakens", "J J Abrams", 2015, ["Emma", "Wally", "Zoe", "Kate", "Bill", "Dave", "Liz", "Olga", "Jo", "Neal"]),
-    ("Hugo", "Martin Scorsese", 2011, ["Wally", "Sam", "Kate", "Bill", "Dave"])
-    ]
+    ("Hugo", "Martin Scorsese", 2011, ["Wally", "Sam", "Kate", "Bill", "Dave"])]
