@@ -41,15 +41,19 @@ getAllFilms :: Database -> IO ()
 getAllFilms database = putStrLn (filmsAsString database)
 
 -- Return all films by a given Director (iii.)
-getFilmsByDirector :: Database -> Director -> Database
-getFilmsByDirector database dirQ = [(ti,dir,yr,score) | (ti,dir,yr,score) <- database, dir == dirQ]
-
 getFilmsWithDirector :: Database -> Director -> IO ()
 getFilmsWithDirector database dirQ = putStrLn (filmsAsString [(ti,dir,yr,score) | (ti,dir,yr,score) <- database, dir == dirQ])
 
--- Return testDatabase with films only after certain date
+-- Return testDatabase with films that have rating score of 75% or above (iv.)
 getFilmsWithRatingSeventyFivePlus :: Database -> IO ()
 getFilmsWithRatingSeventyFivePlus database = putStrLn (filmsAsString [(ti,dir,yr,score) | (ti,dir,yr,score) <- database, getAvgRating score >= 75])
+
+-- Return the average website rating for the films of a give director (v.)
+getAvgDirRating :: Database -> Director -> Float
+getAvgDirRating database dir = (foldr (+) 0 [getAvgRating score | (_, _, _, score) <- (getDirFilms database dir)]) / (fromIntegral (length (getDirFilms database dir)))
+
+-- Return Title of movies rated by a particular user, also if they liked it or not (vi).
+
 
 -- $$$$$$$$$$$$$$$$$$$
 -- // Help-Functions :
@@ -66,11 +70,6 @@ filmsAsString :: Database -> String
 filmsAsString [] = ""
 filmsAsString ((ti,dir,yr,score):rest) = "\n Title: " ++ ti ++ "\n Director: " ++ dir ++ "\n Year: " ++ show yr ++ "\n Avg Rating: " ++ show (getAvgRating score) ++ "\n" ++ filmsAsString rest
 
--- Helper for directorAsString
--- directorAsString :: Database -> Director -> String
--- directorAsString [] = ""
--- directorAsString (())
-
 -- This helper functions is used to calculate the average of the rating list returned by getRating
 getAvgRating :: Rating -> Float
 getAvgRating [] = 0
@@ -80,6 +79,10 @@ getAvgRating rating = fromIntegral (foldr (+) 0 (getRating rating)) / fromIntegr
 getRating :: Rating -> [Int]
 getRating rating = [score | (fan, score) <- rating]
 
+-- This helper function is used for Avg Director Rating.
+getDirFilms :: Database -> Director -> Database
+getDirFilms database dirQ = [(ti,dir,yr,score) | (ti,dir,yr,score) <- database, dir == dirQ]
+
 -- $$$$$$$$$$$$$$$$$$$$
 -- // Demo Functions :
 -- $$$$$$$$$$$$$$$$$$$$
@@ -87,18 +90,32 @@ getRating rating = [score | (fan, score) <- rating]
 -- Demo function to test basic functionality (without persistence - i.e. 
 -- testDatabase doesn't change and nothing is saved/loaded to/from file).
 
---demo :: Int -> IO ()
---demo 1  = putStrLn all films after adding 2018 film "Sherlock Gnomes" 
---          directed by by "John Stevenson" to testDatabase
---demo 2  = putStrLn (filmsAsString testDatabase)
---demo 3  = putStrLn all films by "Ridley Scott"
---demo 4  = putStrLn all films with website rating >= 75%
---demo 5  = putStrLn average website rating for "Ridley Scott"
---demo 6  = putStrLn titles of films rated by "Emma" (with likes/dislikes)
---demo 7  = putStrLn all films after "Emma" says she likes "Avatar"
+demo :: Int -> IO ()
+-- putStrLn all films after adding 2018 film "Sherlock Gnomes" directed by by "John Stevenson" to testDatabase
+demo 1 = putStrLn (filmsAsString (addFilm "Sherlock Gnomes" "John Stevenson" 2018 testDatabase))
+-- Get all films in the database
+demo 2 = getAllFilms testDatabase
+-- Get all films in the database directed by Ridley Scott.
+demo 3 = getFilmsWithDirector testDatabase "Ridley Scott"
+-- Get all films with rating >= 75%.
+demo 4 = getFilmsWithRatingSeventyFivePlus testDatabase
+-- Get average rating for Ridley Scott movies.
+demo 5 = putStrLn ("Ridley Scott Average Rating: " ++ printf "%.4s"(show (getAvgDirRating testDatabase "Ridley Scott")))
+
+-- Get titles of films rated by Emma with Likes and Dislikes.
+--demo 6 = putStrLn titles of films rated by "Emma" (with likes/dislikes)
+
+-- Get all films after Emma says she likes Avatar.
+--demo 7 = putStrLn all films after "Emma" says she likes "Avatar"
+
+-- Get all films after Emma says she likes Titanic.
 --demo 71 = putStrLn all films after "Emma" says she likes "Titanic"
+
+-- Get all films after Emma says she dislikes Jaws.
 --demo 72 = putStrLn all films after "Emma" says she dislikes "Jaws"
---demo 8  = films between 2000 and 2006 inclusive sorted by website rating
+
+-- Get Films between year 2000 and 2006 and sorted by website rating.
+--demo 8 = films between 2000 and 2006 inclusive sorted by website rating
 
 -- $$$$$$$$$$$$$$$$$$$
 -- // User Interface :
