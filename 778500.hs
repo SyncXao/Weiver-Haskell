@@ -162,6 +162,296 @@ demo 8 = putStrLn (filmsAsString (getFilmsYear  testDatabase 2000 2006))
 -- // User Interface :
 -- $$$$$$$$$$$$$$$$$$$
 
+main :: IO ()
+main = do
+    currentUser <- getCurrentUser
+    database <- getDbFile
+    userInterface database currentUser
+    return()
+
+getCurrentUser :: IO Fan
+getCurrentUser = do
+    putStrLn "Enter your name please: "
+    response <- getLine
+    return response
+
+getDbFile :: IO Database
+getDbFile = do
+    file <- readFile "films.txt"
+    return (read file)
+
+writeDbFile :: Database -> IO ()
+writeDbFile database = do
+    writeFile "films.txt" (show database)
+
+
+userInterface :: Database -> Fan -> IO ()
+userInterface database currentUser = do
+    putStrLn ("Hey there " ++ currentUser ++ " ! ! ! Please enter the following numbers for corresponding function.")
+    putStrLn "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+    putStrLn "1. Show All films in the Database."
+    putStrLn "2. Show movies between two Years (for example : 2000 & 2006)"
+    putStrLn "3. Show movies with rating 75% +"
+    putStrLn "4. Search movies by Director"
+    putStrLn "5. Show Average rating for a Director"
+    putStrLn "6. Show user rating"
+    putStrLn "7. Rate selected movie"
+    putStrLn "8. Add new movie to the database"
+    putStrLn "9. Quit \n"
+    putStrLn "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+    putStr   "Select your number: "
+    response <- getLine
+
+    case response of
+        "1" -> do
+            -- Shows all films in the database
+            putStrLn (filmsAsString database)
+            putStrLn "\n"
+            putStrLn "Do you wish to go back to main menu?"
+            putStr   "enter y or n: "
+            response2 <- getLine
+
+            case response2 of
+                "y" -> do
+                    -- Go back to main menu
+                    userInterface database currentUser
+                "n" -> do
+                    -- Quit and save
+                    writeDbFile database
+                    return ()
+                _ -> userInterface database currentUser
+        "2" -> showMenu2 database currentUser
+        
+        "3" -> do
+            -- Show all movies with rating 75%
+            putStrLn (filmsAsString (getFilmsWithRatingSeventyFivePlus database))
+            putStrLn "\n"
+            putStrLn "Do you wish to go back to main menu?"
+            putStr   "enter y or n: "
+            response2 <- getLine
+
+            case response2 of
+                "y" -> do
+                    -- Go back to main menu
+                    userInterface database currentUser
+                "n" -> do
+                    -- Quit and save
+                    writeDbFile database
+                    return ()
+                _ -> userInterface database currentUser
+
+        "4" -> showMenu4 database currentUser
+
+        
+        "5" -> showMenu5 database currentUser
+
+        "6" -> do
+            putStrLn "Not implemented in UI, Only Demo 6"
+        "7" -> do
+            putStrLn "Not implemented in UI, Only Demo 7 , Demo 71, Demo 72"
+        "8" -> do
+            putStrLn "Not implemented in UI, Only Demo 1"
+
+        "9" -> do
+                -- Quit and save
+                writeDbFile database
+                return ()
+        
+        _ -> userInterface database currentUser
+
+showMenu2 :: Database -> Fan -> IO ()
+showMenu2 database currentUser = do
+    putStrLn "Enter First Year: "
+    y1 <- getLine
+    let  yr1 = read y1 :: Integer
+    if (yr1 >= 1900) && (yr1 <= 2018) then do
+        let year1 = read y1
+        putStrLn "Enter Second Year: "
+        y2 <- getLine
+        let  yr2 = read y2 :: Integer
+        if (yr2 >= 1900) && (yr2 <= 2018) then do
+            let year2 = read y2
+            putStrLn (filmsAsString (getFilmsYear database year1 year2))
+        else do
+            putStrLn ("Incorrect Year - Enter first and second year between 1900 & 2018")
+            showMenu2 database currentUser
+    else do
+        putStrLn ("Incorrect Year - Enter first and second year between 1900 & 2018")
+        showMenu2 database currentUser
+    
+    putStrLn "\n"
+    putStrLn "Do you wish to go back to main menu?"
+    putStr   "enter y or n: "
+    response2 <- getLine
+
+    case response2 of
+        "y" -> do
+            -- Go back to main menu
+            userInterface database currentUser
+        "n" -> do
+            -- Quit and save
+            writeDbFile database
+            return ()
+        _ -> userInterface database currentUser
+
+showMenu4 :: Database -> Fan -> IO ()
+showMenu4 database currentUser = do
+    putStrLn "1. Ridley Scott"
+    putStrLn "2. David Cronenberg"
+    putStrLn "3. James Cameron"
+    putStrLn "4. Martin Scorsese"
+    putStrLn "5. Steven Spielberg"
+    putStrLn "6. Frank Darabont"
+    putStrLn "7. J J Abrams"
+    putStrLn "~~~~~~~~~~~~~~~~~~~~~~~~~"
+    putStr   "Pick Director: "
+    response <- getLine
+
+    case response of
+        "1" -> do
+            putStrLn (filmsAsString(getFilmsWithDirector testDatabase "Ridley Scott"))
+            putStrLn "\n"
+            putStrLn "Enter any key to go back to main menu"
+            response2 <- getLine
+            -- Back to main menu
+            userInterface database currentUser
+
+        "2" -> do
+            putStrLn (filmsAsString(getFilmsWithDirector testDatabase "David Cronenberg"))
+            putStrLn "\n"
+            putStrLn "Enter any key to go back to main menu"
+            response2 <- getLine
+            -- Back to main menu
+            userInterface database currentUser
+
+        "3" -> do
+            putStrLn (filmsAsString(getFilmsWithDirector testDatabase "James Cameron"))
+            putStrLn "\n"
+            putStrLn "Enter any key to go back to main menu"
+            putStr   "enter y or n: "
+            response2 <- getLine
+            -- Back to main menu
+            userInterface database currentUser
+
+        "4" -> do
+            putStrLn (filmsAsString(getFilmsWithDirector testDatabase "Martin Scorsese"))
+            putStrLn "\n"
+            putStrLn "Enter any key to go back to main menu"
+            putStr   "enter y or n: "
+            response2 <- getLine
+            -- Back to main menu
+            userInterface database currentUser
+
+        "5" -> do
+            putStrLn (filmsAsString(getFilmsWithDirector testDatabase "Steven Spielberg"))
+            putStrLn "\n"
+            putStrLn "Enter any key to go back to main menu"
+            putStr   "enter y or n: "
+            response2 <- getLine
+            -- Back to main menu
+            userInterface database currentUser
+
+        "6" -> do
+            putStrLn (filmsAsString(getFilmsWithDirector testDatabase "Frank Darabont"))
+            putStrLn "\n"
+            putStrLn "Enter any key to go back to main menu"
+            putStr   "enter y or n: "
+            response2 <- getLine
+            -- Back to main menu
+            userInterface database currentUser
+
+        "7" -> do
+            putStrLn (filmsAsString(getFilmsWithDirector testDatabase "J J Abrams"))
+            putStrLn "\n"
+            putStrLn "Enter any key to go back to main menu"
+            putStr   "enter y or n: "
+            response2 <- getLine
+            -- Back to main menu
+            userInterface database currentUser
+        
+        _ -> userInterface database currentUser
+
+
+showMenu5 :: Database -> Fan -> IO ()
+showMenu5 database currentUser = do
+    putStrLn "1. Ridley Scott"
+    putStrLn "2. David Cronenberg"
+    putStrLn "3. James Cameron"
+    putStrLn "4. Martin Scorsese"
+    putStrLn "5. Steven Spielberg"
+    putStrLn "6. Frank Darabont"
+    putStrLn "7. J J Abrams"
+    putStrLn "~~~~~~~~~~~~~~~~~~~~~~~~~"
+    putStr   "Pick Director for Average: "
+    response <- getLine
+
+    case response of
+        "1" -> do
+            putStrLn (printf "%.4s" (show (getAvgDirRating testDatabase "Ridley Scott")))
+            putStrLn "\n"
+            putStrLn "Enter any key to go back to main menu"
+            putStr   "enter y or n: "
+            response2 <- getLine
+            -- Back to main menu
+            userInterface database currentUser
+
+        "2" -> do
+            putStrLn (printf "%.4s" (show (getAvgDirRating testDatabase "David Cronenberg")))
+            putStrLn "\n"
+            putStrLn "Enter any key to go back to main menu"
+            putStr   "enter y or n: "
+            response2 <- getLine
+            -- Back to main menu
+            userInterface database currentUser
+
+        "3" -> do
+            putStrLn (printf "%.4s" (show (getAvgDirRating testDatabase "James Cameron")))
+            putStrLn "\n"
+            putStrLn "Enter any key to go back to main menu"
+            putStr   "enter y or n: "
+            response2 <- getLine
+            -- Back to main menu
+            userInterface database currentUser
+
+        "4" -> do
+            putStrLn (printf "%.4s" (show (getAvgDirRating testDatabase "Martin Scorsese")))
+            putStrLn "\n"
+            putStrLn "Enter any key to go back to main menu"
+            putStr   "enter y or n: "
+            response2 <- getLine
+            -- Back to main menu
+            userInterface database currentUser
+
+        "5" -> do
+            putStrLn (printf "%.4s" (show (getAvgDirRating testDatabase "Steven Spielberg")))
+            putStrLn "\n"
+            putStrLn "Enter any key to go back to main menu"
+            putStr   "enter y or n: "
+            response2 <- getLine
+            -- Back to main menu
+            userInterface database currentUser
+
+        "6" -> do
+            putStrLn (printf "%.4s" (show (getAvgDirRating testDatabase "Frank Darabont")))
+            putStrLn "\n"
+            putStrLn "Enter any key to go back to main menu"
+            putStr   "enter y or n: "
+            response2 <- getLine
+            -- Back to main menu
+            userInterface database currentUser
+
+        "7" -> do
+            putStrLn (printf "%.4s" (show (getAvgDirRating testDatabase "J J Abrams")))
+            putStrLn "\n"
+            putStrLn "Enter any key to go back to main menu"
+            putStr   "enter y or n: "
+            response2 <- getLine
+            -- Back to main menu
+            userInterface database currentUser
+        
+        _ -> userInterface database currentUser
+
+
 -- $$$$$$$$$$$$$$$$$$$$$$
 -- // Demonstration Database
 -- $$$$$$$$$$$$$$$$$$$$$$
